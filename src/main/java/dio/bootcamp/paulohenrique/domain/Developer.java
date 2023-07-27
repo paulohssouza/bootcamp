@@ -2,13 +2,14 @@ package dio.bootcamp.paulohenrique.domain;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 public class Developer {
     private String name;
     private Double xpDeveloper;
-    private Set<Content> inscribed = new LinkedHashSet<>();
-    private Set<Content> finalized = new LinkedHashSet<>();
+    private Set<Content> inscribed;
+    private Set<Content> finalized;
 
     public Developer(String name, Double xpDeveloper) {
         this.name = name;
@@ -72,7 +73,20 @@ public class Developer {
                 '}';
     }
 
-    public void registerBootcamp(Bootcamp bootcamp) {}
-    public void progress() {}
-    public void calculateTotalXp() {}
+    public void registerBootcamp(Bootcamp bootcamp) {
+        this.inscribed.addAll(bootcamp.getContentsBootcamp());
+        bootcamp.getRegisteredDevelopers().add(this);
+    }
+    public void progress() {
+        Optional<Content> content = this.inscribed.stream().findFirst();
+        if(content.isPresent()) {
+            this.finalized.add(content.get());
+            this.inscribed.remove(content.get());
+        } else {
+            System.err.println("Você não está matriculado em nenhum conteúdo.");
+        }
+    }
+    public Double calculateTotalXp() {
+        return this.finalized.stream().mapToDouble(Content::calculateXp).sum();
+    }
 }
